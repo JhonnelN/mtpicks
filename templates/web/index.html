@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0F10" />
+  <title>MTPicks — Minutes To Post</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/web/css/mtpicks.css" />
+</head>
+<body>
+  <!-- Splash / ad surface -->
+  <section id="splash" class="splash" aria-label="MTPicks splash">
+    <div class="splash-glow" aria-hidden="true"></div>
+    <div class="splash-charts" aria-hidden="true"></div>
+    <div class="splash-stage">
+      <img
+        class="splash-hero"
+        src="/static/web/img/mtpicks-splash.png"
+        alt="MTPicks app on a premium phone with neon WIN checkmark"
+      />
+      <div class="splash-copy">
+        <p class="splash-eyebrow">AMERICAN THOROUGHBRED</p>
+        <h1 class="splash-brand">MTPicks</h1>
+        <p class="splash-slogan">Win the board before the gate opens.</p>
+        <button type="button" id="enter-app" class="btn-neon">Enter App</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- App shell -->
+  <div id="app" class="app hidden" role="application">
+    <header class="app-header">
+      <div>
+        <p class="app-kicker">MTPICKS</p>
+        <h2 id="screen-title">Today</h2>
+      </div>
+      <button type="button" id="track-btn" class="track-pill" title="Select track">
+        <span>TRACK</span>
+        <strong id="track-code">GP</strong>
+      </button>
+    </header>
+
+    <main id="screen" class="screen">
+      <div class="state">Loading…</div>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary">
+      <button type="button" class="tab active" data-tab="today">Today</button>
+      <button type="button" class="tab" data-tab="picks">Picks</button>
+      <button type="button" class="tab" data-tab="vip">VIP</button>
+      <button type="button" class="tab" data-tab="results">Results</button>
+      <button type="button" class="tab" data-tab="more">More</button>
+    </nav>
+  </div>
+
+  <!-- Track picker modal -->
+  <dialog id="track-modal" class="modal">
+    <form method="dialog" class="modal-card">
+      <header>
+        <h3>Select Track</h3>
+        <button value="cancel" class="icon-x" aria-label="Close">×</button>
+      </header>
+      <div id="track-list" class="track-list"></div>
+    </form>
+  </dialog>
+
+  <script src="/static/web/js/mtpicks.js" defer></script>
+</body>
+</html>

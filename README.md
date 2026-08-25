@@ -30,8 +30,47 @@ python manage.py runserver
 
 API base: `http://127.0.0.1:8000/api/`
 
+### Panel de administración (español)
+
+UI gráfica con **django-jazzmin** en español: `http://127.0.0.1:8000/admin/`
+
+- Login: usuario `jhon` (superusuario local)
+- Menú agrupado: Carreras, Integraciones, Referidos, Usuarios
+- Dashboard con resumen (carreras hoy, scrapes, referidos, webhooks)
+
+### Exponer en internet (prueba gratuita)
+
+Con el `runserver` en marcha, un túnel Cloudflare (sin cuenta) publica la app:
+
+```powershell
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+
+Copia la URL `https://….trycloudflare.com` que imprime el túnel y ponla en `.env`:
+
+```env
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,.trycloudflare.com,TU-HOST.trycloudflare.com
+CSRF_TRUSTED_ORIGINS=https://TU-HOST.trycloudflare.com
+```
+
+Reinicia `runserver`. Alternativa: [ngrok](https://ngrok.com) (`ngrok http 8000`) con hosts `.ngrok-free.app`.
+
+### App Android (Expo)
+
+Cliente móvil en [`mobile/`](mobile/) (React Native / Expo + TypeScript).
+
+```powershell
+cd mobile
+npm install
+npm start
+# luego 'a' (Android) o 'w' (web)
+```
+
+Configura la URL del API en **Más → Ajustes** (`http://10.0.2.2:8000/api` en emulador). Detalle: [mobile/README.md](mobile/README.md).
+
 Documentación completa:
 
+- [docs/GUIA_DE_USO.md](docs/GUIA_DE_USO.md) — guía de uso (admin, picks, scraping, API, referidos)
 - [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md) — todos los endpoints JSON (racing, our-picks, referidos, webhooks)
 - [docs/API_EXAMPLES.md](docs/API_EXAMPLES.md) — ejemplos de petición y respuesta por endpoint
 - [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md) — fuentes externas, failover y eventos del scraper

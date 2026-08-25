@@ -1,0 +1,8 @@
+/* Light polish for VIP Picker Jazzmin dashboard */
+.vip-dashboard .small-box h3 {
+  font-size: 2rem;
+}
+
+.vip-dashboard .card-title {
+  font-weight: 600;
+}

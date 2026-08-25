@@ -7,7 +7,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Prefer .env over stale shell exports (important for tunnel hosts)
+load_dotenv(override=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,6 +26,7 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -37,10 +39,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_crontab",
     # Local apps
-    "racing",
+    "racing.apps.RacingConfig",
     "scraper",
-    "integrations",
-    "referrals",
+    "integrations.apps.IntegrationsConfig",
+    "referrals.apps.ReferralsConfig",
+    "web.apps.WebConfig",
 ]
 
 MIDDLEWARE = [
@@ -59,7 +62,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -87,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es"
 # US East Coast is the primary racing timezone for this product
 TIME_ZONE = "America/New_York"
 USE_I18N = True
@@ -95,8 +98,105 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ---------------------------------------------------------------------------
+# Jazzmin admin UI (Spanish)
+# ---------------------------------------------------------------------------
+JAZZMIN_SETTINGS = {
+    "site_title": "VIP Picker Admin",
+    "site_header": "American Horse Racing VIP Picker",
+    "site_brand": "VIP Picker",
+    "welcome_sign": "Bienvenido al panel de administración",
+    "copyright": "American Horse Racing VIP Picker",
+    "search_model": ["racing.Track", "racing.Race", "referrals.ReferralProfile"],
+    "topmenu_links": [
+        {"name": "Inicio", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "API Docs", "url": "/api/health/", "new_window": True},
+        {"name": "Our Picks CNL", "url": "/api/our-picks/?track=CNL", "new_window": True},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "order_with_respect_to": [
+        "racing",
+        "racing.Track",
+        "racing.RaceDay",
+        "racing.Race",
+        "racing.RaceResult",
+        "racing.RaceTipSheet",
+        "racing.VipPick",
+        "racing.OddsSnapshot",
+        "racing.OddsMovement",
+        "racing.ScrapeJob",
+        "integrations",
+        "referrals",
+        "auth",
+    ],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "racing.Track": "fas fa-flag-checkered",
+        "racing.RaceDay": "fas fa-calendar-day",
+        "racing.Race": "fas fa-horse",
+        "racing.RaceResult": "fas fa-trophy",
+        "racing.RaceTipSheet": "fas fa-lightbulb",
+        "racing.VipPick": "fas fa-gem",
+        "racing.OddsSnapshot": "fas fa-chart-line",
+        "racing.OddsMovement": "fas fa-exchange-alt",
+        "racing.ScrapeJob": "fas fa-robot",
+        "racing.Runner": "fas fa-shoe-prints",
+        "racing.Payout": "fas fa-dollar-sign",
+        "integrations.WebhookEndpoint": "fas fa-plug",
+        "integrations.WebhookDelivery": "fas fa-paper-plane",
+        "referrals.ReferralProfile": "fas fa-share-alt",
+        "referrals.ReferralAttribution": "fas fa-user-friends",
+        "referrals.RewardLedger": "fas fa-coins",
+    },
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "custom_css": "admin/css/vip_admin.css",
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-dark",
+    "accent": "accent-warning",
+    "navbar": "navbar-dark navbar-primary",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "flatly",
+    "default_theme_mode": "light",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success",
+    },
+}
 
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
@@ -119,6 +219,13 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+# Required for admin login behind HTTPS tunnels (ngrok / Cloudflare)
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
 

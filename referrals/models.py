@@ -18,16 +18,20 @@ def generate_referral_code() -> str:
 class ReferralProfile(models.Model):
     """Device-linked VIP profile that holds referral code and rewards."""
 
-    device_id = models.CharField(max_length=128, unique=True, db_index=True)
-    email = models.EmailField(blank=True)
-    referral_code = models.CharField(max_length=16, unique=True, db_index=True)
-    credits = models.PositiveIntegerField(default=0)
-    vip_days = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    device_id = models.CharField("ID de dispositivo", max_length=128, unique=True, db_index=True)
+    email = models.EmailField("Email", blank=True)
+    referral_code = models.CharField(
+        "Código de referido", max_length=16, unique=True, db_index=True
+    )
+    credits = models.PositiveIntegerField("Créditos", default=0)
+    vip_days = models.PositiveIntegerField("Días VIP", default=0)
+    created_at = models.DateTimeField("Creado", auto_now_add=True)
+    updated_at = models.DateTimeField("Actualizado", auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
+        verbose_name = "Perfil de referido"
+        verbose_name_plural = "Perfiles de referido"
 
     def __str__(self) -> str:
         return f"{self.referral_code} ({self.device_id[:12]})"
@@ -46,25 +50,33 @@ class ReferralAttribution(models.Model):
     """One referee profile can be attributed to a single referrer."""
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        QUALIFIED = "qualified", "Qualified"
-        REWARDED = "rewarded", "Rewarded"
+        PENDING = "pending", "Pendiente"
+        QUALIFIED = "qualified", "Calificado"
+        REWARDED = "rewarded", "Recompensado"
 
     referrer = models.ForeignKey(
-        ReferralProfile, on_delete=models.CASCADE, related_name="referrals_made"
+        ReferralProfile,
+        on_delete=models.CASCADE,
+        related_name="referrals_made",
+        verbose_name="Referidor",
     )
     referee = models.OneToOneField(
-        ReferralProfile, on_delete=models.CASCADE, related_name="referred_by"
+        ReferralProfile,
+        on_delete=models.CASCADE,
+        related_name="referred_by",
+        verbose_name="Referido",
     )
     status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.PENDING
+        "Estado", max_length=20, choices=Status.choices, default=Status.PENDING
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    qualified_at = models.DateTimeField(null=True, blank=True)
-    rewarded_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField("Creado", auto_now_add=True)
+    qualified_at = models.DateTimeField("Calificado", null=True, blank=True)
+    rewarded_at = models.DateTimeField("Recompensado", null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
+        verbose_name = "Atribución de referido"
+        verbose_name_plural = "Atribuciones de referido"
 
     def __str__(self) -> str:
         return f"{self.referrer.referral_code} → {self.referee.referral_code}"
@@ -74,20 +86,25 @@ class RewardLedger(models.Model):
     """Immutable ledger entries for credits and VIP days."""
 
     class Kind(models.TextChoices):
-        CREDIT = "credit", "Credits"
-        VIP_DAYS = "vip_days", "VIP Days"
+        CREDIT = "credit", "Créditos"
+        VIP_DAYS = "vip_days", "Días VIP"
 
     profile = models.ForeignKey(
-        ReferralProfile, on_delete=models.CASCADE, related_name="ledger"
+        ReferralProfile,
+        on_delete=models.CASCADE,
+        related_name="ledger",
+        verbose_name="Perfil",
     )
-    kind = models.CharField(max_length=20, choices=Kind.choices)
-    amount = models.PositiveIntegerField()
-    reason = models.CharField(max_length=120)
-    meta = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    kind = models.CharField("Tipo", max_length=20, choices=Kind.choices)
+    amount = models.PositiveIntegerField("Cantidad")
+    reason = models.CharField("Motivo", max_length=120)
+    meta = models.JSONField("Meta", default=dict, blank=True)
+    created_at = models.DateTimeField("Creado", default=timezone.now)
 
     class Meta:
         ordering = ["-created_at"]
+        verbose_name = "Movimiento de recompensa"
+        verbose_name_plural = "Ledger de recompensas"
 
     def __str__(self) -> str:
         return f"{self.profile.referral_code} +{self.amount} {self.kind}"
